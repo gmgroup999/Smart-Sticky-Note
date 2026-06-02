@@ -1,0 +1,17 @@
+{
+  "name": "neo-second-brain",
+  "private": true,
+  "scripts": {
+    "dev":        "turbo run dev",
+    "build":      "turbo run build",
+    "db:migrate": "pnpm --filter @neo/db migrate",
+    "db:seed":    "pnpm --filter @neo/db seed"
+  },
+  "devDependencies": {
+    "turbo":       "^2.0.0",
+    "typescript":  "^5.4.0",
+    "@types/node": "^20.0.0",
+    "eslint":      "^8.57.0",
+    "prettier":    "^3.2.0"
+  }
+}

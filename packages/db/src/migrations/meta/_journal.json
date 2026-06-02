@@ -1,0 +1,48 @@
+{
+  "version": "5",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1717286400000,
+      "tag": "0001_extensions",
+      "breakpoints": false
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1717286401000,
+      "tag": "0002_users_workspaces_boards",
+      "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1717286402000,
+      "tag": "0003_notes",
+      "breakpoints": false
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1717286403000,
+      "tag": "0004_note_embeddings_relationships",
+      "breakpoints": false
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1717286404000,
+      "tag": "0005_conversations_extractions",
+      "breakpoints": false
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1717286405000,
+      "tag": "0006_neo_messages",
+      "breakpoints": false
+    }
+  ]
+}

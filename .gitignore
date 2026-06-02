@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+
+# Build outputs
+dist/
+build/
+
+# Environment files — NEVER commit real env files
+.env
+.env.local
+.env.production
+.env.*.local
+# Allow examples
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Turbo cache
+.turbo/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Claude Code local config
+.claude/
+
+# Disabled config files
+*.disabled
+
+# PM2
+ecosystem.config.js
