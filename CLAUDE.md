@@ -1,7 +1,7 @@
 # NEO Second Brain — Project Context
 
 > This file helps Claude Code maintain continuity across sessions.
-> Updated: 2026-06-02 (Session 3 — Part 2)
+> Updated: 2026-06-02 (Session 4)
 
 ---
 
@@ -22,7 +22,8 @@ multiple projects who need an external memory and thinking system.
 |--------|------|--------|-------|
 | Sprint 0 | Day 1 — Monorepo + Config | ✅ COMPLETE | — |
 | Sprint 0 | Day 2 — DB Migrations + Schema | ✅ COMPLETE | — |
-| **MVP v0.1** | **10 files — No Auth, Single User** | **✅ LIVE** | `http://195.201.81.33/` |
+| **MVP v0.1** | **No Auth, Single User** | **✅ LIVE** | `https://note.z-node.cc` |
+| **Phase 1** | **Production Foundation** | **✅ 72% COMPLETE** | Session 4 |
 | Sprint 1 | Day 3 — Auth + API Server (v0.2) | ⏳ Not started | Needs Supabase project |
 | Sprint 1 | Day 4 — Board Canvas | ⏳ Not started | — |
 | Sprint 1 | Day 5 — NoteCard | ⏳ Not started | — |
@@ -31,7 +32,7 @@ multiple projects who need an external memory and thinking system.
 
 ---
 
-## Work Completed (Sessions 1–3)
+## Work Completed (Sessions 1–4)
 
 ### Session 1–2 — Architecture + Design + Local Code
 
@@ -91,63 +92,63 @@ multiple projects who need an external memory and thinking system.
 | Updated `packages/db/package.json` (added main/exports fields) | ✅ Done |
 | `pnpm --filter @neo/web build` succeeded | ✅ Done |
 | Created PM2 ecosystem.config.cjs | ✅ Done |
-| Created Nginx config for SmartStickyNote | ✅ Done |
+| Created Nginx config for SmartStickyNote (port 80 only) | ✅ Done |
 | Both PM2 processes online (`smartstickynote-api`, `smartstickynote-web`) | ✅ Running |
 | **MVP v0.1 LIVE** at `http://195.201.81.33/` | ✅ |
 | `POST /api/notes` — first note created and persisted | ✅ Verified |
 
----
+### Session 4 — Nginx Fix + Phase 1 Production Foundation (2026-06-02)
 
-## Files Created / Modified on Hetzner Server (Session 3)
-
-### SSL Certificates
-
-| File | Path | Notes |
-|------|------|-------|
-| Origin Certificate | `/etc/ssl/cloudflare/z-node.cc.pem` | Covers `*.z-node.cc`, expires 2041 |
-| Private Key | `/etc/ssl/cloudflare/z-node.cc.key` | chmod 600 |
-
-### Nginx Configs (on server)
-
-| File | Path | Notes |
-|------|------|-------|
-| neo.z-node.cc | `/etc/nginx/sites-available/neo.z-node.cc` | Updated — added port 443 + SSL |
-| panel.z-node.cc | `/etc/nginx/sites-available/panel.z-node.cc` | NEW — port 443 + SSL → 127.0.0.1:3099 |
-| panel.z-node.cc symlink | `/etc/nginx/sites-enabled/panel.z-node.cc` | NEW |
-
-### SmartStickyNote on Server
-
-| File | Path | Notes |
-|------|------|-------|
-| Codebase | `/opt/smartstickynote/app/` | Full monorepo deployed |
-| DB .env | `/opt/smartstickynote/app/packages/db/.env` | DATABASE_URL configured |
-| Directory tree | `/opt/smartstickynote/{app,logs,backups,scripts}` | Created, owned by jack |
-| PostgreSQL container | `smartstickynote-postgres` | pgvector:pg16, port 127.0.0.1:5433 |
-
-### SmartStickyNote on Server — MVP v0.1 Files
-
-| File | Path | Notes |
-|------|------|-------|
-| API .env | `/opt/smartstickynote/app/apps/api/.env` | DB URL + seeded IDs + PORT=5011 |
-| Web .env.local | `/opt/smartstickynote/app/apps/web/.env.local` | NEXT_PUBLIC_API_URL=/api |
-| PM2 ecosystem | `/opt/smartstickynote/ecosystem.config.cjs` | Manages api + web processes |
-| Nginx config | `/etc/nginx/sites-available/smartstickynote` | HTTP → port 5010 + /api → 5011 |
-| Nginx symlink | `/etc/nginx/sites-enabled/smartstickynote` | Active |
-| Next.js build | `/opt/smartstickynote/app/apps/web/.next/` | Built and ready |
-
-### Other Server Files
-
-| File | Path | Notes |
-|------|------|-------|
-| Panel .env | `/opt/apps/server-control-panel/.env` | SSH creds + PG creds for hetzner-panel |
-| SSH key | `~/.ssh/smartstickynote_deploy` (local) | ED25519, for Claude Code access |
-| scp-relay | `~/.config/systemd/user/scp-relay.service` | DISABLED — was blocking port 3099 |
+| Work | Result |
+|------|--------|
+| **Root cause analysis**: `https://note.z-node.cc` showed NEO login page | ✅ Diagnosed |
+| Root cause: Nginx had no `listen 443 ssl` block for `note.z-node.cc` → fell through to `neo.z-node.cc` default | ✅ Confirmed |
+| Fixed: Added port 443 SSL block to `/etc/nginx/sites-available/smartstickynote` | ✅ Done |
+| `https://note.z-node.cc` now serves SmartStickyNote correctly | ✅ Verified |
+| Wrote `apps/api/src/routes/health.ts` (GET /health, /stats, /export) | ✅ Done |
+| Updated `apps/api/src/index.ts` (register healthRoutes, error handler, uncaughtException/unhandledRejection) | ✅ Done |
+| Created `apps/api/.env.example` | ✅ Done |
+| Created `apps/web/.env.example` | ✅ Done |
+| Created `DEPLOYMENT.md` | ✅ Done |
+| Created `ARCHITECTURE.md` | ✅ Done |
+| Created `.gitignore` | ✅ Done |
+| Renamed `apps/web/next.config.ts` → `apps/web/next.config.ts.disabled` | ✅ Done |
+| Configured PM2 startup (`pm2-jack.service` enabled in systemd) | ✅ Done |
+| Created backup script `/opt/smartstickynote/scripts/backup.sh` | ✅ Done |
+| Daily cron at 02:00 → `/opt/smartstickynote/logs/backup.log` | ✅ Done |
+| First backup created: `ssnote_20260602_141014.sql.gz` (4.2 KB) | ✅ Done |
+| `git init` + initial commit (57 files, 9,480 lines) | ✅ Done |
+| Pushed to GitHub: `https://github.com/gmgroup999/Smart-Sticky-Note` | ✅ Done |
+| Full Project Audit completed (production readiness: 55/100) | ✅ Done |
 
 ---
 
 ## Files Created / Modified Locally (All Sessions)
 
-### Monorepo Root
+### Monorepo Root — Session 4 additions
+
+| File | Path | Status |
+|------|------|--------|
+| .gitignore | `h:\NEO Second Brain\.gitignore` | ✅ NEW |
+| DEPLOYMENT.md | `h:\NEO Second Brain\DEPLOYMENT.md` | ✅ NEW |
+| ARCHITECTURE.md | `h:\NEO Second Brain\ARCHITECTURE.md` | ✅ NEW |
+
+### apps/api — Session 4
+
+| File | Path | Status |
+|------|------|--------|
+| src/index.ts | `h:\NEO Second Brain\apps\api\src\index.ts` | ✅ UPDATED (error handler + healthRoutes) |
+| src/routes/health.ts | `h:\NEO Second Brain\apps\api\src\routes\health.ts` | ✅ NEW |
+| .env.example | `h:\NEO Second Brain\apps\api\.env.example` | ✅ NEW |
+
+### apps/web — Session 4
+
+| File | Path | Status |
+|------|------|--------|
+| .env.example | `h:\NEO Second Brain\apps\web\.env.example` | ✅ NEW |
+| next.config.ts.disabled | `h:\NEO Second Brain\apps\web\next.config.ts.disabled` | ✅ Renamed from .ts (excluded from git) |
+
+### Previously created (Sessions 1–3, unchanged)
 
 | File | Path | Status |
 |------|------|--------|
@@ -155,160 +156,133 @@ multiple projects who need an external memory and thinking system.
 | pnpm-workspace.yaml | `h:\NEO Second Brain\pnpm-workspace.yaml` | ✅ |
 | turbo.json | `h:\NEO Second Brain\turbo.json` | ✅ |
 | tsconfig.base.json | `h:\NEO Second Brain\tsconfig.base.json` | ✅ |
-
-### apps/api — Session 3
-
-| File | Path | Status |
-|------|------|--------|
-| package.json | `h:\NEO Second Brain\apps\api\package.json` | ✅ Modified (tsx start, dotenv added) |
-| tsconfig.json | `h:\NEO Second Brain\apps\api\tsconfig.json` | ✅ |
-| src/index.ts | `h:\NEO Second Brain\apps\api\src\index.ts` | ✅ NEW |
-| src/plugins/db.ts | `h:\NEO Second Brain\apps\api\src\plugins\db.ts` | ✅ NEW |
-| src/routes/notes.ts | `h:\NEO Second Brain\apps\api\src\routes\notes.ts` | ✅ NEW |
-
-### apps/web — Session 3
-
-| File | Path | Status |
-|------|------|--------|
-| package.json | `h:\NEO Second Brain\apps\web\package.json` | ✅ |
-| tsconfig.json | `h:\NEO Second Brain\apps\web\tsconfig.json` | ✅ |
-| next.config.mjs | `h:\NEO Second Brain\apps\web\next.config.mjs` | ✅ NEW (replaces .ts) |
-| next.config.ts | `h:\NEO Second Brain\apps\web\next.config.ts` | ⚠️ Disabled on server (.disabled) |
-| app/globals.css | `h:\NEO Second Brain\apps\web\app\globals.css` | ✅ NEW |
-| app/layout.tsx | `h:\NEO Second Brain\apps\web\app\layout.tsx` | ✅ NEW |
-| app/page.tsx | `h:\NEO Second Brain\apps\web\app\page.tsx` | ✅ NEW |
-| stores/board.ts | `h:\NEO Second Brain\apps\web\stores\board.ts` | ✅ NEW |
-| components/NoteCard.tsx | `h:\NEO Second Brain\apps\web\components\NoteCard.tsx` | ✅ NEW |
-| components/BoardCanvas.tsx | `h:\NEO Second Brain\apps\web\components\BoardCanvas.tsx` | ✅ NEW |
-
-### packages/types — Session 3
-
-| File | Path | Status |
-|------|------|--------|
-| package.json | `h:\NEO Second Brain\packages\types\package.json` | ✅ |
-| src/index.ts | `h:\NEO Second Brain\packages\types\src\index.ts` | ✅ NEW |
-
-### packages/db — Session 3
-
-| File | Path | Status |
-|------|------|--------|
-| package.json | `h:\NEO Second Brain\packages\db\package.json` | ✅ Modified (added main/exports → src/index.ts) |
-| src/index.ts | `h:\NEO Second Brain\packages\db\src\index.ts` | ✅ NEW (barrel: exports client + schema) |
-| drizzle.config.ts | `h:\NEO Second Brain\packages\db\drizzle.config.ts` | ✅ |
-| .env.example | `h:\NEO Second Brain\packages\db\.env.example` | ✅ |
-| src/client.ts | `h:\NEO Second Brain\packages\db\src\client.ts` | ✅ |
-| src/migrate.ts | `h:\NEO Second Brain\packages\db\src\migrate.ts` | ✅ |
-| src/seed.ts | `h:\NEO Second Brain\packages\db\src\seed.ts` | ✅ |
-
-### packages/db — Schema (10 files)
-
-| File | Path | Status |
-|------|------|--------|
-| src/schema/users.ts | `h:\NEO Second Brain\packages\db\src\schema\users.ts` | ✅ Created |
-| src/schema/workspaces.ts | `h:\NEO Second Brain\packages\db\src\schema\workspaces.ts` | ✅ Created |
-| src/schema/boards.ts | `h:\NEO Second Brain\packages\db\src\schema\boards.ts` | ✅ Created |
-| src/schema/notes.ts | `h:\NEO Second Brain\packages\db\src\schema\notes.ts` | ✅ Created |
-| src/schema/note-events.ts | `h:\NEO Second Brain\packages\db\src\schema\note-events.ts` | ✅ Created |
-| src/schema/note-embeddings.ts | `h:\NEO Second Brain\packages\db\src\schema\note-embeddings.ts` | ✅ Created (customType for vector) |
-| src/schema/note-relationships.ts | `h:\NEO Second Brain\packages\db\src\schema\note-relationships.ts` | ✅ Created |
-| src/schema/conversations.ts | `h:\NEO Second Brain\packages\db\src\schema\conversations.ts` | ✅ Created |
-| src/schema/extractions.ts | `h:\NEO Second Brain\packages\db\src\schema\extractions.ts` | ✅ Created |
-| src/schema/neo-messages.ts | `h:\NEO Second Brain\packages\db\src\schema\neo-messages.ts` | ✅ Created |
-| src/schema/index.ts | `h:\NEO Second Brain\packages\db\src\schema\index.ts` | ✅ Created |
-
-### packages/db — Migrations (8 files)
-
-| File | Path | Status |
-|------|------|--------|
-| src/migrations/0001_extensions.sql | `h:\NEO Second Brain\packages\db\src\migrations\0001_extensions.sql` | ✅ Created |
-| src/migrations/0002_users_workspaces_boards.sql | `h:\NEO Second Brain\packages\db\src\migrations\0002_users_workspaces_boards.sql` | ✅ Created |
-| src/migrations/0003_notes.sql | `h:\NEO Second Brain\packages\db\src\migrations\0003_notes.sql` | ✅ Created |
-| src/migrations/0004_note_embeddings_relationships.sql | `h:\NEO Second Brain\packages\db\src\migrations\0004_note_embeddings_relationships.sql` | ✅ Created |
-| src/migrations/0005_conversations_extractions.sql | `h:\NEO Second Brain\packages\db\src\migrations\0005_conversations_extractions.sql` | ✅ Created |
-| src/migrations/0006_neo_messages.sql | `h:\NEO Second Brain\packages\db\src\migrations\0006_neo_messages.sql` | ✅ Created |
-| **src/migrations/0007_future_proof.sql** | `h:\NEO Second Brain\packages\db\src\migrations\0007_future_proof.sql` | ✅ Created — **NOT in journal. Apply before Sprint 2.** |
-| src/migrations/meta/_journal.json | `h:\NEO Second Brain\packages\db\src\migrations\meta\_journal.json` | ✅ Created — registers 0001–0006 only |
-
-### Documentation
-
-| File | Path | Status |
-|------|------|--------|
-| docs/09-mvp-blueprint.md | `h:\NEO Second Brain\docs\09-mvp-blueprint.md` | ✅ Created (previous session) |
-| docs/10-sprint-1-plan.md | `h:\NEO Second Brain\docs\10-sprint-1-plan.md` | ✅ Created (previous session) |
-| docs/11-sprint-1-execution.md | `h:\NEO Second Brain\docs\11-sprint-1-execution.md` | ✅ Created this session |
-| CLAUDE.md | `h:\NEO Second Brain\CLAUDE.md` | ✅ Updated now |
+| apps/api/package.json | `h:\NEO Second Brain\apps\api\package.json` | ✅ |
+| apps/api/src/plugins/db.ts | `h:\NEO Second Brain\apps\api\src\plugins\db.ts` | ✅ |
+| apps/api/src/routes/notes.ts | `h:\NEO Second Brain\apps\api\src\routes\notes.ts` | ✅ |
+| apps/web/next.config.mjs | `h:\NEO Second Brain\apps\web\next.config.mjs` | ✅ |
+| apps/web/app/globals.css | `h:\NEO Second Brain\apps\web\app\globals.css` | ✅ |
+| apps/web/app/layout.tsx | `h:\NEO Second Brain\apps\web\app\layout.tsx` | ✅ |
+| apps/web/app/page.tsx | `h:\NEO Second Brain\apps\web\app\page.tsx` | ✅ |
+| apps/web/stores/board.ts | `h:\NEO Second Brain\apps\web\stores\board.ts` | ✅ |
+| apps/web/components/NoteCard.tsx | `h:\NEO Second Brain\apps\web\components\NoteCard.tsx` | ✅ |
+| apps/web/components/BoardCanvas.tsx | `h:\NEO Second Brain\apps\web\components\BoardCanvas.tsx` | ✅ |
+| packages/types/src/index.ts | `h:\NEO Second Brain\packages\types\src\index.ts` | ✅ |
+| packages/db/src/index.ts | `h:\NEO Second Brain\packages\db\src\index.ts` | ✅ |
+| packages/db/src/client.ts | `h:\NEO Second Brain\packages\db\src\client.ts` | ✅ |
+| packages/db/src/schema/ (10 files) | `h:\NEO Second Brain\packages\db\src\schema\` | ✅ |
+| packages/db/src/migrations/ (7 SQL + journal) | `h:\NEO Second Brain\packages\db\src\migrations\` | ✅ |
 
 ---
 
-## Project Structure (Current State — MVP v0.1)
+## Files on Hetzner Server (Session 4 additions)
+
+| File | Path | Notes |
+|------|------|-------|
+| Nginx config | `/etc/nginx/sites-available/smartstickynote` | UPDATED — added port 443 SSL block |
+| Backup script | `/opt/smartstickynote/scripts/backup.sh` | NEW — pg_dump + gzip + 7-day retention |
+| First backup | `/opt/smartstickynote/backups/ssnote_20260602_141014.sql.gz` | 4.2 KB |
+| PM2 systemd | `/etc/systemd/system/pm2-jack.service` | NEW — auto-start on reboot |
+| API health routes | `/opt/smartstickynote/app/apps/api/src/routes/health.ts` | NEW — deployed |
+| API index | `/opt/smartstickynote/app/apps/api/src/index.ts` | UPDATED — deployed |
+
+---
+
+## Project Structure (Current State — Phase 1)
 
 ```
-h:\NEO Second Brain\
+h:\NEO Second Brain\                  (git: main, 1 commit → GitHub)
+├── .gitignore
+├── ARCHITECTURE.md
 ├── CLAUDE.md
+├── DEPLOYMENT.md
 ├── package.json
 ├── pnpm-workspace.yaml / turbo.json / tsconfig.base.json
 │
 ├── apps\
 │   ├── api\
-│   │   ├── package.json                 ← tsx start script, dotenv added
+│   │   ├── package.json
 │   │   ├── tsconfig.json
+│   │   ├── .env.example
 │   │   └── src\
-│   │       ├── index.ts                 ← Fastify server (port 5011)
+│   │       ├── index.ts              ← Fastify server + error handler + startup logs
 │   │       ├── plugins\
-│   │       │   └── db.ts                ← Drizzle client plugin
+│   │       │   └── db.ts             ← Drizzle client plugin
 │   │       └── routes\
-│   │           └── notes.ts             ← GET/POST/PATCH/DELETE /notes
+│   │           ├── notes.ts          ← GET/POST/PATCH/DELETE /notes
+│   │           └── health.ts         ← GET /health, /stats, /export
 │   │
 │   └── web\
 │       ├── package.json
 │       ├── tsconfig.json
-│       ├── next.config.mjs              ← transpilePackages + /api rewrites
+│       ├── .env.example
+│       ├── next.config.mjs           ← transpilePackages + /api rewrites
+│       ├── next.config.ts.disabled   ← renamed, excluded from git
 │       ├── app\
 │       │   ├── globals.css
 │       │   ├── layout.tsx
-│       │   └── page.tsx                 ← Board page (client component)
+│       │   └── page.tsx              ← Board page (client component)
 │       ├── stores\
-│       │   └── board.ts                 ← Zustand: notes, pan, zoom
+│       │   └── board.ts              ← Zustand: notes, pan, zoom, selectedNoteId
 │       └── components\
-│           ├── NoteCard.tsx             ← Sticky note: drag + inline edit
-│           └── BoardCanvas.tsx          ← CSS transform canvas: pan/zoom
+│           ├── NoteCard.tsx          ← Sticky note: drag + inline edit
+│           └── BoardCanvas.tsx       ← CSS transform canvas: pan/zoom
 │
 └── packages\
     ├── db\
-    │   ├── package.json                 ← main: src/index.ts (CRITICAL)
+    │   ├── package.json              ← main: src/index.ts (CRITICAL)
+    │   ├── drizzle.config.ts
+    │   ├── .env.example
     │   └── src\
-    │       ├── index.ts                 ← Barrel: exports createDbClient + schema
+    │       ├── index.ts              ← Barrel: exports createDbClient + schema
     │       ├── client.ts
     │       ├── migrate.ts / seed.ts
-    │       ├── schema\                  ← 11 files (10 tables + index.ts)
-    │       └── migrations\              ← 7 SQL files + meta/_journal.json
+    │       ├── schema\               ← 11 files (10 tables + index.ts)
+    │       └── migrations\           ← 7 SQL files + meta/_journal.json
     │
     └── types\
         ├── package.json
         └── src\
-            └── index.ts                 ← Note, NoteType, CreateNoteBody, UpdateNoteBody
+            └── index.ts              ← Note, NoteType, CreateNoteBody, UpdateNoteBody
 ```
 
 ### Live Server State
 
 ```
 /opt/smartstickynote/
-├── app/                    ← monorepo (synced from local)
-├── logs/                   ← PM2 logs
-├── backups/
+├── app/                    ← monorepo (deployed via scp)
+├── logs/                   ← PM2 logs (api-out, api-err, web-out, web-err, backup)
+├── backups/                ← daily .sql.gz (7-day retention)
 ├── scripts/
-└── ecosystem.config.cjs    ← PM2 config
+│   └── backup.sh           ← pg_dump → gzip → rotate
+└── ecosystem.config.cjs    ← PM2 config (log paths, restart policy)
 
-PM2 processes:
-  smartstickynote-api    ← pnpm start → tsx src/index.ts → port 5011
-  smartstickynote-web    ← next start → port 5010
+PM2 processes (both online):
+  smartstickynote-api    ← pnpm start → tsx src/index.ts → 127.0.0.1:5011
+  smartstickynote-web    ← next start → 127.0.0.1:5010
+
+PM2 startup: pm2-jack.service ENABLED (auto-start on reboot)
 
 Nginx:
-  / → 127.0.0.1:5010 (Next.js)
-  /api/* → 127.0.0.1:5011 (Fastify, prefix stripped)
+  HTTP  → 301 redirect to HTTPS
+  HTTPS → 127.0.0.1:5010 (Next.js)
+  HTTPS /api/* → 127.0.0.1:5011 (Fastify, prefix stripped)
 
-Access: http://195.201.81.33/
+Access: https://note.z-node.cc
 ```
+
+---
+
+## API Endpoints (Current)
+
+| Method | Path (browser) | Description | Auth |
+|--------|---------------|-------------|------|
+| GET | `/api/health` | `{status,service,timestamp}` | None |
+| GET | `/api/stats` | `{notes,users,uptime,version}` | None |
+| GET | `/api/export` | `{exportedAt, notes[]}` all active | None |
+| GET | `/api/notes` | All active notes for board | None |
+| POST | `/api/notes` | Create note | None |
+| PATCH | `/api/notes/:id` | Update note | None |
+| DELETE | `/api/notes/:id` | Soft delete | None |
 
 ---
 
@@ -319,10 +293,12 @@ Container:    smartstickynote-postgres (Docker, pgvector:pg16)
 Host port:    127.0.0.1:5433
 Database:     smartstickynote_prod
 User:         smartstickynote_app
+Extensions:   pgvector 0.8.2, uuid-ossp 1.1
 11 tables:    users, workspaces, boards, notes, note_events,
               note_embeddings, note_relationships, conversations,
-              extractions, neo_messages, __drizzle_migrations
-Seed data:    1 user (dev@neo.app), 1 workspace, 1 board
+              extractions, extraction_items, neo_messages
+Migrations:   6/7 applied (0007 intentionally deferred)
+Seed data:    1 user (dev@neo.app), 1 workspace, 1 board, 3 notes
 BOARD_ID:     78f4567f-02c1-49e9-9b49-b6dd06d570b3
 USER_ID:      2a4b76bf-7aa4-47fd-b225-647e01f7586d
 WORKSPACE_ID: fb59d291-3a21-4859-a416-83c7f94daf60
@@ -330,34 +306,64 @@ WORKSPACE_ID: fb59d291-3a21-4859-a416-83c7f94daf60
 
 ---
 
-## TODO — Next Steps
+## Production Readiness Score (After Session 4)
 
-### Immediate (server housekeeping)
-- [ ] `pm2 startup systemd` + `pm2 save` — processes survive server reboot
-- [ ] DNS: Add A record `smartstickynote.z-node.cc` → `195.201.81.33` in Cloudflare
-- [ ] Cloudflare: Enable Proxied (orange cloud) for `smartstickynote.z-node.cc`
-- [ ] Update Nginx config to add port 443 + SSL for `smartstickynote.z-node.cc`
-- [ ] Clarify and resolve user concern about project folder structure
+| Category | Score | Key Gap |
+|----------|-------|---------|
+| Infrastructure | 75/100 | `.env.production` missing on server |
+| Security | 25/100 | No auth, no rate limiting, no input validation |
+| Database | 80/100 | No RLS, migration 0007 not applied |
+| API | 60/100 | No auth, no validation, no pagination |
+| Frontend | 55/100 | No delete UI, no detail panel |
+| Monitoring | 55/100 | No external monitor, no log rotation |
+| Backup | 55/100 | No off-site, no restore docs |
+| Documentation | 70/100 | No README, no API docs |
+| **OVERALL** | **55/100** | Not production-ready without auth |
 
-### MVP v0.1 Testing (browser)
-- [ ] Open `http://195.201.81.33/` in browser — verify board loads
-- [ ] Click **+ New Note** — verify note appears
-- [ ] Double-click note — verify inline edit works
-- [ ] Drag note — verify position persists after refresh
-- [ ] Scroll wheel — verify zoom works
-- [ ] Refresh browser — verify all notes still exist
+---
 
-### MVP v0.2 — Add Authentication (Day 3)
+## Git Repository
+
+```
+Local:   h:\NEO Second Brain\
+Remote:  https://github.com/gmgroup999/Smart-Sticky-Note
+Branch:  main
+Commits: 1 (initial — 57 files, 9,480 lines)
+Status:  Clean (no uncommitted changes as of Session 4)
+```
+
+---
+
+## TODO — Next Steps (Prioritized)
+
+### P0 — Done This Session ✅
+- [x] Fix HTTPS routing for `note.z-node.cc` (Nginx port 443)
+- [x] `pm2 startup systemd && pm2 save`
+- [x] Create backup script + daily cron
+- [x] `git init` + push to GitHub
+
+### P1 — Quick Wins (< 1 hour each)
+- [ ] Create `apps/web/.env.production` on server (missing — using hardcoded fallback)
+- [ ] Add `@fastify/rate-limit` — 100 req/min per IP
+- [ ] Add log rotation (`pm2-logrotate` or logrotate cron)
+- [ ] Add restore procedure to `DEPLOYMENT.md`
+- [ ] Set up UptimeRobot monitor on `https://note.z-node.cc/api/health`
+- [ ] Wire TypeBox validation on POST `/notes` and PATCH `/notes/:id`
+
+### P2 — UI Improvements
+- [ ] Add Delete button to NoteCard (DELETE endpoint exists)
+- [ ] Apply migration 0007 + update NoteType enum (add `project`, `wisdom`)
+- [ ] Note detail panel — click to expand `summary` + `details` fields
+
+### P3 — Sprint 1 Day 3 (v0.2 — Auth)
 - [ ] Create Supabase Cloud project → get URL, ANON_KEY, SERVICE_ROLE_KEY
 - [ ] Write `apps/api/src/plugins/auth.ts` — Supabase JWT middleware
 - [ ] Write `apps/api/src/routes/auth.ts` — POST /auth/bootstrap
-- [ ] Write `apps/api/src/routes/boards.ts` — GET /boards/:id
 - [ ] Write `apps/web/lib/supabase.ts` — browser Supabase client
 - [ ] Write `apps/web/lib/api.ts` — fetch wrapper with JWT header
 - [ ] Write `apps/web/middleware.ts` — route protection
 - [ ] Write `apps/web/app/(auth)/login/page.tsx` — login page
 - [ ] Update notes routes to use `request.user` instead of hardcoded env IDs
-- [ ] DONE when: login → board loads → note persists
 
 ### Before Sprint 2
 - [ ] Apply migration 0007 (add to journal + run `pnpm db:migrate`)
@@ -368,55 +374,66 @@ WORKSPACE_ID: fb59d291-3a21-4859-a416-83c7f94daf60
 
 ## Unresolved Issues
 
-### Issue 1 — ✅ RESOLVED — DATABASE_URL (was blocker, now done)
-`pnpm db:migrate` and `pnpm db:seed` ran successfully on Hetzner server.
-DATABASE_URL: `postgresql://smartstickynote_app:[pass]@127.0.0.1:5433/smartstickynote_prod`
-
-### Issue 1 — ✅ RESOLVED — DATABASE_URL
-`pnpm db:migrate` and `pnpm db:seed` complete. 11 tables. Seed data verified.
-
-### Issue 2 — ✅ RESOLVED — `packages/types/src/index.ts`
-Written. Exports `Note`, `NoteType`, `CreateNoteBody`, `UpdateNoteBody`.
-
-### Issue 3 — ✅ RESOLVED — `apps/web/next.config`
-Using `next.config.mjs` (Next.js 14 doesn't support `.ts` config). API rewrites included.
+### Issue 1–3 — ✅ RESOLVED (Sessions 1–3)
+DATABASE_URL, packages/types barrel, next.config format — all fixed.
 
 ### Issue 4 — Supabase Project Not Created (v0.2 blocker)
-Required for auth. MVP v0.1 runs without it. Create before Day 3 (v0.2).
+Required for auth. MVP v0.1 runs without it.
 **Resolution: Create at supabase.com when ready for v0.2.**
 
 ### Issue 5 — Migration 0007 Not Applied (Intentional)
 `0007_future_proof.sql` exists but is NOT in journal. Apply before Sprint 2 Day 1.
 
-### Issue 6 — PM2 Startup Not Configured
-`pm2 startup systemd` not run — processes won't survive server reboot.
-**Resolution: Run `pm2 startup systemd && pm2 save` on server.**
+### Issue 6 — ✅ RESOLVED — PM2 Startup
+`pm2-jack.service` enabled. `pm2 save` done. Processes survive reboot.
 
-### Issue 7 — DNS for SmartStickyNote Not Created
-`smartstickynote.z-node.cc` → `195.201.81.33` not yet in Cloudflare DNS.
-App accessible via IP (`http://195.201.81.33/`) but not via domain.
-**Resolution: Add in Cloudflare DNS + enable orange cloud.**
+### Issue 7 — DNS `note.z-node.cc` vs `smartstickynote.z-node.cc`
+App is live on `note.z-node.cc` (Cloudflare proxied, orange cloud ON).
+Golden Rules say domain should be `smartstickynote.z-node.cc` — but user chose `note.z-node.cc`.
+**Status: Working as-is. No action needed unless domain change requested.**
 
-### Issue 8 — `next.config.ts` Exists Locally But Disabled
-`apps/web/next.config.ts` still exists locally (disabled as `.disabled` on server).
-**Resolution: Rename locally to `next.config.ts.disabled` to avoid confusion.**
+### Issue 8 — ✅ RESOLVED — `next.config.ts`
+Renamed locally to `next.config.ts.disabled`. Excluded from git via `.gitignore` (`*.disabled`).
 
-### Issue 9 — `panel.z-node.cc` "ไม่ปลอดภัย" Warning
+### Issue 9 — `panel.z-node.cc` Security Warning
 Cloudflare orange cloud not enabled for `panel.z-node.cc`.
 **Resolution: Cloudflare DNS → panel.z-node.cc → enable Proxied.**
 
-### Issue 10 — Project Folder Structure (User Concern — Unresolved)
-User mentioned "โปรเจ็คนี้ ไม่ถูกจัดเก็บใน folder โปรเจ็คอื่นๆ จึงรวน" — needs clarification.
-Could mean: path has spaces, no git repo, or wants different local structure.
-**Resolution: Awaiting clarification from user.**
+### Issue 10 — ✅ RESOLVED — Project Folder Structure
+User confirmed resolved. Working directory is `h:\NEO Second Brain\` with git initialized.
 
-### Issue 11 — No Git Repository
-Code is deployed via scp/tar. No version control. Changes must be manually synced.
-**Resolution: `git init` + GitHub remote recommended before v0.2.**
+### Issue 11 — ✅ RESOLVED — No Git Repository
+`git init` done. Pushed to `https://github.com/gmgroup999/Smart-Sticky-Note`.
 
 ### Issue 12 — Extraction Quality Threshold (Sprint 2 Risk)
 PRD requires >80% AI extraction acceptance rate. No prompt engineering done.
 **Resolution: Early spike in Sprint 2.**
+
+### Issue 13 — `apps/web/.env.production` Missing on Server (NEW)
+File not present at `/opt/smartstickynote/app/apps/web/.env.production`.
+Next.js falls back to hardcoded `http://127.0.0.1:5011` — works but not explicit.
+**Resolution: Create file with `API_INTERNAL_URL=http://127.0.0.1:5011` on server.**
+
+### Issue 14 — No Input Validation on API Routes (NEW)
+`@sinclair/typebox` installed but not wired into any route.
+Malformed POST/PATCH body can reach the database.
+**Resolution: Add TypeBox schemas to `/notes` POST and PATCH.**
+
+### Issue 15 — No Rate Limiting (NEW — Security Risk)
+Any client can flood the API. No `@fastify/rate-limit` configured.
+**Resolution: Install and configure before v0.2 auth launch.**
+
+### Issue 16 — Log Files Will Grow Unbounded (NEW)
+`api-err.log` already 76 KB from crash cycles. No rotation configured.
+**Resolution: `pm2 install pm2-logrotate` + configure max size.**
+
+### Issue 17 — Backup Not Off-Site (NEW)
+Backups stored only on the same server. Server failure = data loss.
+**Resolution: Add Cloudflare R2 or Backblaze B2 upload step to `backup.sh`.**
+
+### Issue 18 — No External Uptime Monitor (NEW)
+No alerts if the app goes down.
+**Resolution: Add UptimeRobot free monitor on `https://note.z-node.cc/api/health`.**
 
 ---
 
@@ -437,31 +454,28 @@ PRD requires >80% AI extraction acceptance rate. No prompt engineering done.
 | Mobile = capture only, not canvas | Poor UX for infinite canvas on mobile |
 | Extraction preview mandatory | User approves all AI notes before they appear |
 | NEO reads memory, never writes directly | AI errors cannot corrupt the knowledge base |
+| `note.z-node.cc` as production domain | User chose this over `smartstickynote.z-node.cc` |
+| `next.config.mjs` (not `.ts`) | Next.js 14.2.0 does not support `.ts` config files |
+| `packages/db/package.json` must have `main`+`exports` | tsx resolver requires explicit entry point for workspace packages |
 
 ---
 
-## Infrastructure Decision (Updated — Session 3)
+## Infrastructure Decision (Locked)
 
 **All phases:** Supabase Auth + Hetzner VPS (PostgreSQL 16 + pgvector self-hosted)
 
-Supabase DB phase was skipped entirely. Going directly to Hetzner for database hosting from Day 1.
+**Reason:** Full control over pgvector tuning. No Supabase DB at any phase.
 
-**Reason:** Full control over pgvector tuning required from the start. No Supabase DB at any phase.
-
-**Permanent:** Keep Supabase Auth indefinitely — database migration is easy, auth migration is not.
-
-**Server:** Hetzner CPX31 — 4 vCPU, 8 GB RAM, 160 GB NVMe (~€14/mo)
+**Server:** Hetzner Dedicated (Auction #2980542) — Intel i7-8700, 64 GB RAM, 2×1 TB NVMe
 
 **DATABASE_URL (production):**
 ```
-postgresql://smartstickynote_app:[password]@127.0.0.1:5432/smartstickynote_prod
+postgresql://smartstickynote_app:[password]@127.0.0.1:5433/smartstickynote_prod
 ```
 
 ---
 
-## Infrastructure Golden Rules (Locked — Session 3)
-
-These rules govern ALL deployments of SmartStickyNote. Never violate them.
+## Infrastructure Golden Rules (Locked)
 
 | Rule | Value |
 |------|-------|
@@ -471,8 +485,7 @@ These rules govern ALL deployments of SmartStickyNote. Never violate them.
 | Logs directory | `/opt/smartstickynote/logs/` |
 | Backups directory | `/opt/smartstickynote/backups/` |
 | Scripts directory | `/opt/smartstickynote/scripts/` |
-| Frontend domain | `smartstickynote.z-node.cc` |
-| API domain | `api.smartstickynote.z-node.cc` |
+| Active domain | `note.z-node.cc` (Cloudflare proxied) |
 | PM2 process (api) | `smartstickynote-api` |
 | PM2 process (web) | `smartstickynote-web` |
 | Nginx config | `/etc/nginx/sites-available/smartstickynote` |
@@ -481,8 +494,6 @@ These rules govern ALL deployments of SmartStickyNote. Never violate them.
 | env (web) | `/opt/smartstickynote/app/apps/web/.env.production` |
 
 **Never share database, table, schema, env vars, storage, PM2 process names, or Nginx configs with any other project.**
-
-**The server must be multi-project ready:** Boonma, JoyRide, Kidpost can coexist on the same machine in the future. Each project gets its own `/opt/[project]/` tree, database, user, PM2 processes, and Nginx config. No project knows about another.
 
 ---
 
@@ -502,18 +513,18 @@ These rules govern ALL deployments of SmartStickyNote. Never violate them.
 
 | Layer | Technology | Status |
 |-------|-----------|--------|
-| Frontend | Next.js 14 + TypeScript + Zustand + Tailwind | Locked |
-| Canvas | CSS transforms + quadtree spatial index | Locked |
+| Frontend | Next.js 14 + TypeScript + Zustand | Locked |
+| Canvas | CSS transforms | Locked |
 | Backend | Fastify 4 + Node.js + TypeScript | Locked |
 | Database | PostgreSQL 16 + pgvector | Locked |
-| ORM | Drizzle ORM v0.30.10 + drizzle-kit v0.21.4 | Locked |
+| ORM | Drizzle ORM v0.30 + drizzle-kit v0.21 | Locked |
 | Cache / Queue | Redis + BullMQ (Sprint 2+) | Pending |
 | LLM | Anthropic Claude API (claude-sonnet-4-6) | Locked |
 | Embeddings | OpenAI text-embedding-3-small | Locked |
 | Storage | Cloudflare R2 | Pending |
-| Auth | Supabase Auth | Locked |
-| DB Hosting | Hetzner CPX31 (self-hosted PostgreSQL 16 + pgvector) | Locked |
-| Frontend hosting | smartstickynote.z-node.cc (Nginx on Hetzner) | Locked |
-| Backend hosting | api.smartstickynote.z-node.cc (Nginx on Hetzner) | Locked |
+| Auth | Supabase Auth | Locked (v0.2) |
+| DB Hosting | Hetzner Dedicated (self-hosted PostgreSQL 16 + pgvector) | Locked |
+| Domain | `note.z-node.cc` (Cloudflare Orange Cloud) | Active |
 | Package manager | pnpm 9.15.9 | Locked |
 | Monorepo | Turborepo | Locked |
+| Version control | Git + GitHub (`gmgroup999/Smart-Sticky-Note`) | Active |
